@@ -313,6 +313,16 @@ input[type="time"]:hover { background-image: url("data:image/svg+xml,%3Csvg xmln
     color: var(--purple);
     border-left: 2px solid var(--purple);
 }
+.cal-event.reservation.displacement {
+    background: rgba(251, 191, 36, 0.15) !important;
+    color: var(--amber) !important;
+    border-left-color: var(--amber) !important;
+}
+.cal-event.reservation.displacement .cal-event-code {
+    background: rgba(251, 191, 36, 0.2);
+    padding: 1px 4px;
+    border-radius: 3px;
+}
 .cal-event.reservation.span-start {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
