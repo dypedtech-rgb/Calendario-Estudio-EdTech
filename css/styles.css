@@ -32,6 +32,8 @@
     --red-bg: rgba(248, 113, 113, 0.15);
     --purple: #a78bfa;
     --purple-bg: rgba(167, 139, 250, 0.15);
+    --pink: #f472b6;
+    --pink-bg: rgba(244, 114, 182, 0.15);
 
     --radius-sm: 4px;
     --radius: 6px;
@@ -314,12 +316,12 @@ input[type="time"]:hover { background-image: url("data:image/svg+xml,%3Csvg xmln
     border-left: 2px solid var(--purple);
 }
 .cal-event.reservation.displacement {
-    background: rgba(251, 191, 36, 0.15) !important;
-    color: var(--amber) !important;
-    border-left-color: var(--amber) !important;
+    background: var(--pink-bg) !important;
+    color: var(--pink) !important;
+    border-left-color: var(--pink) !important;
 }
 .cal-event.reservation.displacement .cal-event-code {
-    background: rgba(251, 191, 36, 0.2);
+    background: rgba(244, 114, 182, 0.2);
     padding: 1px 4px;
     border-radius: 3px;
 }
