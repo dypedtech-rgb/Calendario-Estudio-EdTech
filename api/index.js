@@ -12,6 +12,18 @@ app.use(express.json());
 // Async handler wrapper
 const asyncHandler = fn => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 
+// --- HEALTH CHECK (diagnóstico) ---
+app.get('/api/health', asyncHandler(async (req, res) => {
+  const hasDb = !!process.env.DATABASE_URL;
+  let dbOk = false;
+  let dbError = null;
+  if (hasDb) {
+    try { await queryOne('SELECT 1 as ok'); dbOk = true; }
+    catch (e) { dbError = e.message; }
+  }
+  res.json({ status: dbOk ? 'ok' : 'error', DATABASE_URL_set: hasDb, db_connected: dbOk, db_error: dbError });
+}));
+
 // --- AUTH & ME ---
 app.post('/api/login', asyncHandler(async (req, res) => {
   const { username, password } = req.body;
@@ -693,8 +705,8 @@ app.get('/api/availability/:date', asyncHandler(async (req, res) => {
 
 // Error handler
 app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).json({ error: 'Error interno del servidor' });
+  console.error('[API ERROR]', err.message);
+  res.status(500).json({ error: 'Error interno del servidor', detail: err.message });
 });
 
 // For Vercel, simply export the Express app
