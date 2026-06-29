@@ -27,7 +27,7 @@ app.get('/api/health', asyncHandler(async (req, res) => {
 // --- AUTH & ME ---
 app.post('/api/login', asyncHandler(async (req, res) => {
   const { username, password } = req.body;
-  const u = await queryOne('SELECT * FROM users WHERE username = ?', [username]);
+  const u = await queryOne('SELECT * FROM users WHERE LOWER(username) = LOWER(?)', [username]);
   if (!u) return res.status(401).json({ error: 'Credenciales inválidas' });
   const passwordOk = bcrypt.compareSync(password, u.password) || u.password === password;
   if (!passwordOk) return res.status(401).json({ error: 'Credenciales inválidas' });
