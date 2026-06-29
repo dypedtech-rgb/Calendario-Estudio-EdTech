@@ -493,7 +493,7 @@ const SCRIPT_LABELS = {
     pending_review:    'Pendiente de Revisión',
     in_review:         'En Revisión',
     needs_corrections: 'Requiere Correcciones',
-    approved:          'Revisado ✓',
+    approved:          'Revisado',
     // Backwards compat for old data
     pending:     'Pendiente (legacy)',
     in_progress: 'En Progreso (legacy)',

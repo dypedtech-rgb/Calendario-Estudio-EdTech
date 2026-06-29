@@ -274,7 +274,7 @@ const Calendar = {
                 <div class="cal-event-subject" style="${isCancelled ? 'text-decoration:line-through;opacity:0.6;' : ''}">${session.subject_name} ${typeTag}</div>
                 <div class="cal-event-teacher">${externalBadge}${session.teacher_name}</div>
             `;
-            ev.title = `${isCancelled ? '🚫 CANCELADO — ' : ''}${session.teacher_name}${isExternal ? ` (${session.sede})` : ''} — ${session.subject_name}\n${session.start_time} - ${session.end_time}`;
+            ev.title = `${isCancelled ? 'CANCELADO — ' : ''}${session.teacher_name}${isExternal ? ` (${session.sede})` : ''} — ${session.subject_name}\n${session.start_time} - ${session.end_time}`;
 
             if (App.user) {
                 ev.style.cursor = 'pointer';
@@ -339,7 +339,8 @@ const Calendar = {
             const dispClass = isDisplacement ? 'displacement' : '';
             ev.className = `cal-event reservation ${spanClass} ${dispClass}`.trim();
             const hideText = spanClass === 'span-middle' || spanClass === 'span-end' ? 'opacity: 0;' : '';
-            const badge = isDisplacement ? '📦 DESPLAZ.' : 'RESERVA';
+            const svgBox = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:3px;vertical-align:middle"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>';
+            const badge = isDisplacement ? `${svgBox}DESPLAZ.` : 'RESERVA';
             ev.innerHTML = `
                 <div class="cal-event-header" style="${hideText}">
                     <span class="cal-event-time">${r.start_time?.substring(0, 5)} - ${r.end_time?.substring(0, 5)}</span>
@@ -348,7 +349,7 @@ const Calendar = {
                 <div class="cal-event-subject" style="${hideText}">${r.reason || 'Bloqueado'}</div>
                 <div class="cal-event-teacher" style="${hideText}">Por: ${r.user_name}</div>
             `;
-            ev.title = `${isDisplacement ? '📦 DESPLAZAMIENTO\nEl estudio queda libre' : 'RESERVA'}\nMotivo: ${r.reason}\n${r.start_time} - ${r.end_time}`;
+            ev.title = `${isDisplacement ? 'DESPLAZAMIENTO\nEl estudio queda libre' : 'RESERVA'}\nMotivo: ${r.reason}\n${r.start_time} - ${r.end_time}`;
 
             const canDelete = App.user && (App.user.role === 'admin' || App.user.role === 'post_productor' || App.user.id === r.user_id);
 
@@ -391,7 +392,7 @@ const Calendar = {
             ev.innerHTML = `
                 <div class="cal-event-header">
                     <span class="cal-event-time">${mr.start_time?.substring(0,5)} - ${mr.end_time?.substring(0,5)}</span>
-                    <span class="cal-event-code">🔔 REUNIÓN</span>
+                    <span class="cal-event-code"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:3px;vertical-align:middle"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg> REUNIÓN</span>
                 </div>
                 <div class="cal-event-subject">${mr.requester_name}</div>
             `;

@@ -862,7 +862,7 @@ const Modals = {
                     staff_2_id: staff2Val
                 });
                 if (s2res.error) {
-                    if (s2res.error.includes('Conflicto')) alert('⚠️ 2ª sesión: ' + s2res.error);
+                    if (s2res.error.includes('Conflicto')) alert('Error 2ª sesión: ' + s2res.error);
                     showToast(`2ª sesión: ${s2res.error}`, 'error');
                 }
             }
@@ -969,7 +969,7 @@ const Modals = {
         if (sw) sw.style.background = isOn ? '#fbbf24' : 'var(--border)';
         if (knob) knob.style.transform = isOn ? 'translateX(20px)' : 'translateX(0)';
         if (info) info.style.display = isOn ? 'block' : 'none';
-        if (statusText) statusText.textContent = isOn ? 'queda LIBRE ✓' : 'queda ocupado';
+        if (statusText) statusText.innerHTML = isOn ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:2px;vertical-align:middle"><polyline points="20 6 9 17 4 12"></polyline></svg> queda LIBRE' : 'queda ocupado';
         if (statusText) statusText.style.color = isOn ? '#fbbf24' : '';
     },
 
@@ -1000,7 +1000,7 @@ const Modals = {
         if (result.error) {
             if (result.error.includes('Conflicto')) {
                 const errDiv = document.getElementById('reservation-error');
-                errDiv.textContent = '⚠️ ' + result.error;
+                errDiv.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;vertical-align:middle"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>' + result.error;
                 errDiv.style.display = 'block';
                 return;
             }
@@ -1045,7 +1045,7 @@ const Modals = {
         const result = await API.put(`/meeting-requests/${this._currentMeetingRequestId}`, { status, admin_notes: notes });
         if (result.error) return showToast(result.error, 'error');
         
-        const msg = status === 'approved' ? '✅ Solicitud aprobada — se creó la reserva' : '❌ Solicitud rechazada';
+        const msg = status === 'approved' ? 'Solicitud aprobada — se creó la reserva' : 'Solicitud rechazada';
         showToast(msg, status === 'approved' ? 'success' : 'warning');
         this.closeAll();
         Calendar.render();
@@ -1372,16 +1372,16 @@ const Modals = {
             const result = await API.put(`/assignments/${this.currentAssignmentId}`, { bitacora: value });
             if (result && result.error) {
                 const status = document.getElementById('bitacora-save-status');
-                if (status) { status.textContent = '❌ Error al guardar'; status.style.color = 'var(--red)'; }
+                if (status) { status.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;vertical-align:middle"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> Error al guardar'; status.style.color = 'var(--red)'; }
                 return showToast('Error al guardar bitácora: ' + result.error, 'error');
             }
             this._lastSavedBitacora = value;
             const status = document.getElementById('bitacora-save-status');
-            if (status) { status.textContent = '✓ Guardado'; status.style.color = 'var(--green)'; }
+            if (status) { status.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;vertical-align:middle"><polyline points="20 6 9 17 4 12"></polyline></svg> Guardado'; status.style.color = 'var(--green)'; }
             if (manual) showToast('Bitácora guardada', 'success');
         } catch (e) {
             const status = document.getElementById('bitacora-save-status');
-            if (status) { status.textContent = '❌ Error de conexión'; status.style.color = 'var(--red)'; }
+            if (status) { status.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;vertical-align:middle"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> Error de conexión'; status.style.color = 'var(--red)'; }
             showToast('Error al guardar bitácora — revisa tu conexión', 'error');
         }
     },
@@ -1865,12 +1865,12 @@ const Modals = {
                     const dObj = new Date(dateStr + 'T12:00:00');
                     const diaName = dias[dObj.getDay()];
                     let avail = '';
-                    if (status === 'full') avail = ' — ⚠️ Día completo';
+                    if (status === 'full') avail = ' — Día completo';
                     else if (status === 'morning_busy') avail = ' — Mañana ocupada, tarde libre';
                     else if (status === 'afternoon_busy') avail = ' — Mañana libre, tarde ocupada';
-                    else avail = ' — Día libre ✓';
+                    else avail = ' — Día libre';
                     const display = document.getElementById('avail-selected-display');
-                    display.textContent = `📅 ${diaName.charAt(0).toUpperCase() + diaName.slice(1)} ${day} de ${monthNames[m-1]} de ${y}${avail}`;
+                    display.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;vertical-align:-2px"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg> ${diaName.charAt(0).toUpperCase() + diaName.slice(1)} ${day} de ${monthNames[m-1]} de ${y}${avail}`;
                     display.style.display = 'block';
 
                     if (holidayName) {
@@ -1907,7 +1907,7 @@ const Modals = {
         if (result.error) {
             if (result.error.includes('Conflicto')) {
                 const errDiv = document.getElementById('add-session-error');
-                errDiv.textContent = '⚠️ ' + result.error;
+                errDiv.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;vertical-align:middle"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>' + result.error;
                 errDiv.style.display = 'block';
                 return;
             }

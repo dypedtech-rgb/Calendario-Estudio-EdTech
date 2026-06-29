@@ -691,7 +691,7 @@ PSI-220 Psicología General,Psicología"></textarea>
                         <option value="pending_review">Pendiente de Revisión</option>
                         <option value="in_review">En Revisión</option>
                         <option value="needs_corrections">Requiere Correcciones</option>
-                        <option value="approved">Revisado ✓</option>
+                        <option value="approved">Revisado</option>
                     </select>
                 </div>
             </div>
@@ -1048,7 +1048,7 @@ PSI-220 Psicología General,Psicología"></textarea>
                     </span>
                 </label>
                 <div id="displacement-info" style="display:none;margin-top:10px;padding:8px 12px;border-radius:6px;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);">
-                    <span style="color:#fbbf24;font-size:12px;font-weight:600;">📦 El estudio quedará LIBRE durante este horario</span>
+                    <span style="color:#fbbf24;font-size:12px;font-weight:600;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:2px;vertical-align:-2px"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg> El estudio quedará LIBRE durante este horario</span>
                     <div style="color:var(--text-secondary);font-size:11px;margin-top:3px;">Otros podrán usar las instalaciones o solicitar reuniones</div>
                 </div>
             </div>
@@ -1113,7 +1113,7 @@ PSI-220 Psicología General,Psicología"></textarea>
         <div class="modal-footer">
             <button class="btn btn-ghost" data-close-modal>Cancelar</button>
             <button class="btn" id="btn-reject-meeting" onclick="Modals.reviewMeetingRequest('rejected')" style="background:rgba(248,113,113,0.15);border:1px solid rgba(248,113,113,0.4);color:#f87171;font-weight:600;">Rechazar</button>
-            <button class="btn btn-primary" id="btn-approve-meeting" onclick="Modals.reviewMeetingRequest('approved')" style="background:#22c55e;border-color:#22c55e;color:#0a1a0f;font-weight:700;">✓ Aprobar</button>
+            <button class="btn btn-primary" id="btn-approve-meeting" onclick="Modals.reviewMeetingRequest('approved')" style="background:#22c55e;border-color:#22c55e;color:#0a1a0f;font-weight:700;display:flex;align-items:center;gap:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> Aprobar</button>
         </div>
     </div>
 

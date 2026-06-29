@@ -19,7 +19,7 @@ const SCRIPT_STATUS_LABELS = {
     pending_review:     'Pendiente de Revisión',
     in_review:          'En Revisión',
     needs_corrections:  'Requiere Correcciones',
-    approved:           'Revisado ✓'
+    approved:           'Revisado'
 };
 
 const SCRIPT_STATUS_COLORS = {
