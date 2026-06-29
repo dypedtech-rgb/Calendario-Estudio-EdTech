@@ -171,7 +171,7 @@ const API = {
         return res.json();
     },
     async get(url, silent = false) {
-        const res = await fetch(`/api${url}`, { headers: this.getHeaders() });
+        const res = await fetch(`/api${url}`, { headers: this.getHeaders(), cache: 'no-store' });
         return this.checkAuth(res, silent);
     },
     async post(url, data) {
