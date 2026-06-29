@@ -1,6 +1,7 @@
 node_modules/
-.env
-.env.local
-.vercel
 .DS_Store
-*.log
+.env
+*.py
+Guia-Protocolo_V4.pdf
+Materias II-2026.csv
+supabase-schema.sql
