@@ -34,11 +34,18 @@ async function execute(sql, params = []) {
   const client = getPool();
   const pgSql = toPostgres(sql);
   const isInsert = pgSql.trim().toUpperCase().startsWith('INSERT');
-  const finalSql = isInsert && !pgSql.toUpperCase().includes('RETURNING')
-    ? pgSql + ' RETURNING id'
-    : pgSql;
+  let finalSql = pgSql;
+  
+  if (isInsert && !pgSql.toUpperCase().includes('RETURNING')) {
+    const tableMatch = pgSql.match(/INSERT\s+INTO\s+([a-zA-Z0-9_]+)/i);
+    const tableName = tableMatch ? tableMatch[1].toLowerCase() : '';
+    if (tableName && !['user_sessions', 'settings'].includes(tableName)) {
+      finalSql += ' RETURNING id';
+    }
+  }
+  
   const { rows } = await client.query(finalSql, params);
-  return isInsert && rows[0] ? rows[0].id : null;
+  return isInsert && rows && rows[0] && rows[0].id ? rows[0].id : null;
 }
 
 async function logAction(user, action, entityType = null, entityId = null, details = null) {
