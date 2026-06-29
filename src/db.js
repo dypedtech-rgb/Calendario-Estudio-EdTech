@@ -1,5 +1,9 @@
-const { Pool } = require('pg');
+const pg = require('pg');
+const { Pool } = pg;
 
+// Prevent node-postgres from parsing DATE columns into JS Date objects
+// which creates timezone issues when comparing strings in the frontend
+pg.types.setTypeParser(1082, (stringValue) => stringValue);
 let pool;
 function getPool() {
   if (!pool) {
