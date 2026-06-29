@@ -14,30 +14,25 @@ function getPool() {
   return pool;
 }
 
-// Convert MySQL-style ? placeholders to PostgreSQL $1, $2, ...
 function toPostgres(sql) {
   let i = 0;
   return sql.replace(/\?/g, () => `$${++i}`);
 }
 
-// Execute a query returning all rows
 async function queryAll(sql, params = []) {
   const client = getPool();
   const { rows } = await client.query(toPostgres(sql), params);
   return rows;
 }
 
-// Execute a query returning one row or null
 async function queryOne(sql, params = []) {
   const rows = await queryAll(sql, params);
   return rows[0] || null;
 }
 
-// Execute INSERT/UPDATE/DELETE — returns insertId for INSERT
 async function execute(sql, params = []) {
   const client = getPool();
   const pgSql = toPostgres(sql);
-  // For INSERT, append RETURNING id to get the new ID
   const isInsert = pgSql.trim().toUpperCase().startsWith('INSERT');
   const finalSql = isInsert && !pgSql.toUpperCase().includes('RETURNING')
     ? pgSql + ' RETURNING id'
@@ -46,7 +41,6 @@ async function execute(sql, params = []) {
   return isInsert && rows[0] ? rows[0].id : null;
 }
 
-// Log an action to activity_log
 async function logAction(user, action, entityType = null, entityId = null, details = null) {
   if (!user) return;
   try {

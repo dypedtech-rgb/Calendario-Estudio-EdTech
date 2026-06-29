@@ -29,12 +29,6 @@ function requireAdmin(user, res) {
   return true;
 }
 
-function cors(res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-}
-
 function extractCodeAndName(rawName) {
   if (!rawName) return { code: 'EXT', name: rawName };
   const match = rawName.match(/^([A-Z]{2,4}\d{3,4}[A-Z]?)\s*[-–]?\s*(.+)$/i);
@@ -42,4 +36,4 @@ function extractCodeAndName(rawName) {
   return { code: 'EXT', name: rawName.trim() };
 }
 
-module.exports = { getAuthUser, requireAuth, requireAdmin, cors, getToken, extractCodeAndName };
+module.exports = { getAuthUser, requireAuth, requireAdmin, getToken, extractCodeAndName };
