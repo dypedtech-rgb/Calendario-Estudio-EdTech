@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disponibilidad del Estudio — EdTech</title>
+    <meta name="description" content="Consulta la disponibilidad del Estudio de Filmación EdTech y solicita una reunión.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #0e0e1a;
+            --bg-card: #16162a;
+            --bg-elevated: #1e1e35;
+            --border: rgba(255,255,255,0.08);
+            --border-light: rgba(255,255,255,0.12);
+            --text-primary: #f0f0ff;
+            --text-secondary: #8888aa;
+            --text-muted: #5a5a7a;
+            --accent: #a78bfa;
+            --accent-bg: rgba(167,139,250,0.12);
+            --green: #34d399;
+            --green-bg: rgba(52,211,153,0.1);
+            --red: #f87171;
+            --red-bg: rgba(248,113,113,0.1);
+            --amber: #fbbf24;
+            --amber-bg: rgba(251,191,36,0.1);
+            --gray-bg: rgba(255,255,255,0.04);
+            --radius: 10px;
+            --shadow: 0 4px 24px rgba(0,0,0,0.4);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        /* ── Header ── */
+        .page-header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 18px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            backdrop-filter: blur(12px);
+        }
+        .logo-wrap {
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            background: var(--accent-bg);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--accent);
+            flex-shrink: 0;
+        }
+        .header-text h1 { font-size: 16px; font-weight: 700; }
+        .header-text p { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+        /* ── Layout ── */
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 32px 20px;
+        }
+
+        /* ── Month Navigation ── */
+        .month-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+        .month-nav h2 {
+            font-size: 20px;
+            font-weight: 700;
+            min-width: 200px;
+            text-align: center;
+        }
+        .nav-btn {
+            width: 36px; height: 36px;
+            border-radius: 8px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.15s;
+        }
+        .nav-btn:hover { background: var(--bg-elevated); border-color: var(--accent); }
+
+        /* ── Legend ── */
+        .legend {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 12px; color: var(--text-secondary);
+        }
+        .legend-dot {
+            width: 12px; height: 12px; border-radius: 3px;
+        }
+
+        /* ── Calendar Grid ── */
+        .calendar-grid {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+        .cal-header-row {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            background: var(--bg-elevated);
+            border-bottom: 1px solid var(--border);
+        }
+        .cal-header-cell {
+            padding: 10px;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .cal-body {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+        }
+        .cal-cell {
+            min-height: 80px;
+            padding: 8px;
+            border-right: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.15s;
+            position: relative;
+        }
+        .cal-cell:nth-child(7n) { border-right: none; }
+        .cal-cell.other-month { opacity: 0.3; cursor: default; }
+        .cal-cell.not-workday { background: rgba(0,0,0,0.2); cursor: default; }
+        .cal-cell.available:hover { background: rgba(52,211,153,0.07); }
+        .cal-cell.selected { background: rgba(167,139,250,0.15) !important; border-color: var(--accent) !important; }
+
+        .cal-date {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .cal-cell.today .cal-date {
+            color: var(--accent);
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .status-pill.available { background: var(--green-bg); color: var(--green); }
+        .status-pill.occupied { background: var(--red-bg); color: var(--red); }
+        .status-pill.partial { background: var(--amber-bg); color: var(--amber); }
+        .status-pill.closed { background: var(--gray-bg); color: var(--text-muted); }
+        .status-pill.pending { 
+            background: rgba(248,113,113,0.15); 
+            color: var(--red); 
+            animation: pulse-pill 1.8s infinite;
+        }
+
+        @keyframes pulse-pill {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        @keyframes pulse-border {
+            0%, 100% { border-color: rgba(167,139,250,0.4); }
+            50% { border-color: rgba(167,139,250,0.9); box-shadow: 0 0 12px rgba(167,139,250,0.3); }
+        }
+        .cal-cell.selected { animation: pulse-border 1.5s infinite; }
+
+        .free-slots {
+            margin-top: 4px;
+            font-size: 10px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* ── Request Panel ── */
+        .request-panel {
+            margin-top: 28px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .request-panel.hidden { display: none; }
+        .request-panel-header {
+            padding: 16px 20px;
+            background: var(--bg-elevated);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .request-panel-header h3 {
+            font-size: 14px;
+            font-weight: 700;
+        }
+        .selected-date-chip {
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--accent-bg);
+            color: var(--accent);
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .request-panel-body {
+            padding: 20px;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+        @media (max-width: 540px) { .form-grid { grid-template-columns: 1fr; } }
+        .form-row { display: flex; flex-direction: column; gap: 6px; }
+        .form-row label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .form-input {
+            padding: 9px 12px;
+            border-radius: 7px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-light);
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+        .form-input:focus { border-color: var(--accent); }
+        .form-input option { background: var(--bg-elevated); }
+        .request-footer {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 18px;
+        }
+        .btn-primary {
+            padding: 9px 22px;
+            border-radius: 8px;
+            background: var(--accent);
+            border: none;
+            color: #0e0e1a;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.15s, transform 0.1s;
+        }
+        .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-ghost {
+            padding: 9px 16px;
+            border-radius: 8px;
+            background: transparent;
+            border: 1px solid var(--border-light);
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .btn-ghost:hover { background: var(--bg-elevated); }
+
+        /* ── Success/Error messages ── */
+        .message-box {
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-top: 14px;
+            display: none;
+        }
+        .message-box.success {
+            background: var(--green-bg);
+            border: 1px solid rgba(52,211,153,0.3);
+            color: var(--green);
+        }
+        .message-box.error {
+            background: var(--red-bg);
+            border: 1px solid rgba(248,113,113,0.3);
+            color: var(--red);
+        }
+
+        /* ── Loading ── */
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        .spinner {
+            width: 28px; height: 28px;
+            border: 2px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin: 0 auto 12px auto;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<header class="page-header">
+    <div class="logo-wrap">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="2" width="20" height="20" rx="2.18"/><line x1="7" y1="2" x2="7" y2="22"/>
+            <line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/>
+        </svg>
+    </div>
+    <div class="header-text">
+        <h1>Estudio de Filmación EdTech</h1>
+        <p>Consulta de disponibilidad y solicitud de reuniones</p>
+    </div>
+</header>
+
+<main class="container">
+
+    <!-- Month Nav -->
+    <div class="month-nav">
+        <button class="nav-btn" id="btn-prev" onclick="prevMonth()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <h2 id="month-title">Cargando...</h2>
+        <button class="nav-btn" id="btn-next" onclick="nextMonth()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-dot" style="background:var(--green-bg);border:1px solid var(--green);"></div>
+            <span>Disponible</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot" style="background:var(--amber-bg);border:1px solid var(--amber);"></div>
+            <span>Parcialmente libre</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot" style="background:var(--red-bg);border:1px solid var(--red);"></div>
+            <span>Ocupado</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot" style="background:var(--gray-bg);border:1px solid var(--border);"></div>
+            <span>No laborable</span>
+        </div>
+    </div>
+
+    <!-- Calendar -->
+    <div class="calendar-grid">
+        <div class="cal-header-row">
+            <div class="cal-header-cell">Lun</div>
+            <div class="cal-header-cell">Mar</div>
+            <div class="cal-header-cell">Mié</div>
+            <div class="cal-header-cell">Jue</div>
+            <div class="cal-header-cell">Vie</div>
+            <div class="cal-header-cell">Sáb</div>
+            <div class="cal-header-cell">Dom</div>
+        </div>
+        <div class="cal-body" id="cal-body">
+            <div class="loading">
+                <div class="spinner"></div>
+                Cargando disponibilidad...
+            </div>
+        </div>
+    </div>
+
+    <!-- Request Panel (hidden by default) -->
+    <div class="request-panel hidden" id="request-panel">
+        <div class="request-panel-header">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <h3>Solicitar uso del estudio para reunión</h3>
+            <span class="selected-date-chip" id="selected-date-chip">—</span>
+        </div>
+        <div class="request-panel-body">
+            <div class="form-grid">
+                <div class="form-row">
+                    <label>Tu nombre</label>
+                    <input type="text" id="req-name" class="form-input" placeholder="Ej: María García">
+                </div>
+                <div class="form-row">
+                    <label>Teléfono o correo</label>
+                    <input type="text" id="req-contact" class="form-input" placeholder="Ej: 71234567 o m@email.com">
+                </div>
+            </div>
+            <div class="form-grid">
+                <div class="form-row">
+                    <label>Hora de inicio</label>
+                    <select id="req-start" class="form-input">
+                        <option value="08:00">08:00</option><option value="08:30">08:30</option>
+                        <option value="09:00">09:00</option><option value="09:30">09:30</option>
+                        <option value="10:00">10:00</option><option value="10:30">10:30</option>
+                        <option value="11:00">11:00</option><option value="11:30">11:30</option>
+                        <option value="12:00">12:00</option><option value="12:30">12:30</option>
+                        <option value="13:00">13:00</option><option value="13:30">13:30</option>
+                        <option value="14:00">14:00</option><option value="14:30">14:30</option>
+                        <option value="15:00">15:00</option><option value="15:30">15:30</option>
+                        <option value="16:00">16:00</option><option value="16:30">16:30</option>
+                        <option value="17:00">17:00</option><option value="17:30">17:30</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label>Hora de fin</label>
+                    <select id="req-end" class="form-input">
+                        <option value="08:30">08:30</option><option value="09:00">09:00</option>
+                        <option value="09:30">09:30</option><option value="10:00" selected>10:00</option>
+                        <option value="10:30">10:30</option><option value="11:00">11:00</option>
+                        <option value="11:30">11:30</option><option value="12:00">12:00</option>
+                        <option value="12:30">12:30</option><option value="13:00">13:00</option>
+                        <option value="13:30">13:30</option><option value="14:00">14:00</option>
+                        <option value="14:30">14:30</option><option value="15:00">15:00</option>
+                        <option value="15:30">15:30</option><option value="16:00">16:00</option>
+                        <option value="16:30">16:30</option><option value="17:00">17:00</option>
+                        <option value="17:30">17:30</option><option value="18:00">18:00</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <label>Motivo de la reunión</label>
+                <input type="text" id="req-reason" class="form-input" placeholder="Ej: Reunión de coordinación académica">
+            </div>
+
+            <div id="msg-success" class="message-box success">
+                ✅ ¡Solicitud enviada! El administrador revisará tu solicitud y te contactará pronto.
+            </div>
+            <div id="msg-error" class="message-box error"></div>
+
+            <div class="request-footer">
+                <button class="btn-ghost" onclick="closeRequestPanel()">Cancelar</button>
+                <button class="btn-primary" id="btn-send" onclick="sendRequest()">
+                    Enviar Solicitud
+                </button>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<script>
+    // Determine API base URL
+    const API_BASE = '/api/?path=';
+
+    let currentMonth = new Date().getMonth() + 1;
+    let currentYear = new Date().getFullYear();
+    let availability = [];
+    let selectedDate = null;
+
+    const MONTH_NAMES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    const today = new Date().toISOString().split('T')[0];
+
+    async function loadAvailability() {
+        document.getElementById('cal-body').innerHTML = '<div class="loading"><div class="spinner"></div>Cargando disponibilidad...</div>';
+        document.getElementById('month-title').textContent = `${MONTH_NAMES[currentMonth-1]} ${currentYear}`;
+        try {
+            const resp = await fetch(`${API_BASE}/public/availability&month=${currentMonth}&year=${currentYear}`);
+            const data = await resp.json();
+            availability = data.availability || [];
+            renderCalendar(data);
+        } catch(e) {
+            document.getElementById('cal-body').innerHTML = '<div class="loading" style="color:var(--red)">Error al cargar disponibilidad</div>';
+        }
+    }
+
+    function renderCalendar(data) {
+        const body = document.getElementById('cal-body');
+        body.innerHTML = '';
+
+        const firstDay = new Date(currentYear, currentMonth - 1, 1);
+        // Monday-first: getDay() returns 0=Sun, 1=Mon ... 6=Sat
+        let startDow = firstDay.getDay(); // 0=Sun
+        if (startDow === 0) startDow = 7;
+        const offset = startDow - 1; // cells to prepend
+
+        // Prepend empty cells
+        for (let i = 0; i < offset; i++) {
+            const empty = document.createElement('div');
+            empty.className = 'cal-cell other-month';
+            body.appendChild(empty);
+        }
+
+        availability.forEach(day => {
+            const cell = document.createElement('div');
+            const d = new Date(day.date + 'T00:00:00');
+            const dayNum = d.getDate();
+            const isToday = day.date === today;
+            const isPast = day.date < today;
+
+            let classes = 'cal-cell';
+            if (isToday) classes += ' today';
+            if (day.date === selectedDate) classes += ' selected';
+
+            let statusHtml = '';
+            if (day.status === 'available' && !isPast) {
+                classes += ' available';
+                statusHtml = `<span class="status-pill available">● Libre</span>`;
+            } else if (day.status === 'partial' && !isPast) {
+                classes += ' available';
+                const slots = day.free_slots?.map(s => `${s.start}–${s.end}`).join(', ') || '';
+                statusHtml = `<span class="status-pill partial">◑ Parcial</span>`;
+                if (slots) statusHtml += `<div class="free-slots">${slots}</div>`;
+            } else if (day.status === 'occupied' || isPast) {
+                statusHtml = `<span class="status-pill occupied">✕ Ocupado</span>`;
+            } else if (day.status === 'closed') {
+                classes += ' not-workday';
+                statusHtml = `<span class="status-pill closed">— Cerrado</span>`;
+            }
+
+            cell.className = classes;
+            cell.innerHTML = `<div class="cal-date">${dayNum}</div>${statusHtml}`;
+
+            // Only allow clicking available future days
+            if ((day.status === 'available' || day.status === 'partial') && !isPast) {
+                cell.addEventListener('click', () => selectDate(day.date, cell));
+            }
+
+            body.appendChild(cell);
+        });
+    }
+
+    function selectDate(dateStr, cell) {
+        // Deselect previous
+        document.querySelectorAll('.cal-cell.selected').forEach(c => c.classList.remove('selected'));
+        cell.classList.add('selected');
+        selectedDate = dateStr;
+
+        // Show request panel
+        const panel = document.getElementById('request-panel');
+        panel.classList.remove('hidden');
+
+        const d = new Date(dateStr + 'T00:00:00');
+        document.getElementById('selected-date-chip').textContent = d.toLocaleDateString('es-BO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+        // Reset form
+        document.getElementById('req-name').value = '';
+        document.getElementById('req-contact').value = '';
+        document.getElementById('req-reason').value = '';
+        document.getElementById('msg-success').style.display = 'none';
+        document.getElementById('msg-error').style.display = 'none';
+        document.getElementById('btn-send').disabled = false;
+        document.getElementById('btn-send').textContent = 'Enviar Solicitud';
+
+        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function closeRequestPanel() {
+        document.getElementById('request-panel').classList.add('hidden');
+        document.querySelectorAll('.cal-cell.selected').forEach(c => c.classList.remove('selected'));
+        selectedDate = null;
+    }
+
+    async function sendRequest() {
+        if (!selectedDate) return;
+
+        const name    = document.getElementById('req-name').value.trim();
+        const contact = document.getElementById('req-contact').value.trim();
+        const start   = document.getElementById('req-start').value;
+        const end     = document.getElementById('req-end').value;
+        const reason  = document.getElementById('req-reason').value.trim();
+
+        const errBox = document.getElementById('msg-error');
+        errBox.style.display = 'none';
+
+        if (!name) { errBox.textContent = 'Por favor ingresa tu nombre.'; errBox.style.display = 'block'; return; }
+        if (!start || !end) { errBox.textContent = 'Selecciona un horario.'; errBox.style.display = 'block'; return; }
+        if (start >= end) { errBox.textContent = 'La hora de fin debe ser mayor a la hora de inicio.'; errBox.style.display = 'block'; return; }
+
+        const btn = document.getElementById('btn-send');
+        btn.disabled = true;
+        btn.textContent = 'Enviando...';
+
+        try {
+            const resp = await fetch(`${API_BASE}/public/meeting-request`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    requester_name: name,
+                    requester_contact: contact,
+                    requested_date: selectedDate,
+                    start_time: start,
+                    end_time: end,
+                    reason: reason
+                })
+            });
+            const result = await resp.json();
+
+            if (result.error) {
+                errBox.textContent = result.error;
+                errBox.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = 'Enviar Solicitud';
+            } else {
+                document.getElementById('msg-success').style.display = 'block';
+                btn.textContent = '✓ Enviado';
+
+                // Mark the date as "pending" in calendar
+                const dayData = availability.find(d => d.date === selectedDate);
+                if (dayData) dayData._pendingRequest = true;
+                renderCalendar({ availability });
+
+                // Re-select and show pulsing
+                setTimeout(() => {
+                    const cells = document.querySelectorAll('.cal-cell');
+                    cells.forEach(cell => {
+                        const dateEl = cell.querySelector('.cal-date');
+                        if (!dateEl) return;
+                        const d = new Date(selectedDate + 'T00:00:00');
+                        if (parseInt(dateEl.textContent) === d.getDate() && !cell.classList.contains('other-month')) {
+                            cell.style.animation = 'pulse-border 1.5s infinite';
+                            cell.style.borderColor = 'rgba(248,113,113,0.6)';
+                            cell.style.background = 'rgba(248,113,113,0.05)';
+                        }
+                    });
+                }, 100);
+            }
+        } catch(e) {
+            errBox.textContent = 'Error de conexión. Intenta de nuevo.';
+            errBox.style.display = 'block';
+            btn.disabled = false;
+            btn.textContent = 'Enviar Solicitud';
+        }
+    }
+
+    function prevMonth() {
+        currentMonth--;
+        if (currentMonth < 1) { currentMonth = 12; currentYear--; }
+        closeRequestPanel();
+        loadAvailability();
+    }
+
+    function nextMonth() {
+        currentMonth++;
+        if (currentMonth > 12) { currentMonth = 1; currentYear++; }
+        closeRequestPanel();
+        loadAvailability();
+    }
+
+    // Initial load
+    loadAvailability();
+</script>
+</body>
+</html>

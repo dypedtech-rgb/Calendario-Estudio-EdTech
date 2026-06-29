@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sistema de gestión de calendario de filmaciones académicas">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>ESTUDIO DE FILMACIÓN EDTECH</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        @keyframes pulse-badge {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.25); opacity: 0.8; }
+        }
+        @keyframes pulse-event {
+            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(251,191,36,0.5); }
+            50% { opacity: 0.85; box-shadow: 0 0 0 6px rgba(251,191,36,0); }
+        }
+        @keyframes pulse-meeting-request {
+            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(248,113,113,0.6); }
+            50% { opacity: 0.9; box-shadow: 0 0 0 8px rgba(248,113,113,0); }
+        }
+        .cal-event.displacement {
+            background: linear-gradient(135deg, rgba(251,191,36,0.2), rgba(251,191,36,0.1)) !important;
+            border-left: 3px solid #fbbf24 !important;
+            color: #fbbf24 !important;
+        }
+        .cal-event.displacement .cal-event-code {
+            background: rgba(251,191,36,0.2) !important;
+            color: #fbbf24 !important;
+        }
+        .cal-event.meeting-request-pending {
+            background: linear-gradient(135deg, rgba(248,113,113,0.15), rgba(248,113,113,0.08)) !important;
+            border-left: 3px solid #f87171 !important;
+            color: #f87171 !important;
+            animation: pulse-meeting-request 1.8s infinite !important;
+            cursor: pointer !important;
+        }
+        .cal-event.meeting-request-pending .cal-event-code {
+            background: rgba(248,113,113,0.2) !important;
+            color: #f87171 !important;
+        }
+        #btn-meeting-requests { position: relative; }
+        #meeting-requests-badge { animation: pulse-badge 1.5s infinite; }
+    </style>
+</head>
+<body>
+    <!-- ===================== LOGIN SCREEN ===================== -->
+    <div id="login-screen" style="display:flex; height:100vh; align-items:center; justify-content:center; background:var(--bg-main);">
+        <form id="form-login" style="background:var(--bg-card); padding:30px; border-radius:var(--radius-lg); border:1px solid var(--border-light); width:320px; text-align:center;">
+            <div class="logo-icon" style="margin: 0 auto 16px auto;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+                    <line x1="7" y1="2" x2="7" y2="22"></line>
+                    <line x1="17" y1="2" x2="17" y2="22"></line>
+                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                    <line x1="2" y1="7" x2="7" y2="7"></line>
+                    <line x1="2" y1="17" x2="7" y2="17"></line>
+                    <line x1="17" y1="17" x2="22" y2="17"></line>
+                    <line x1="17" y1="7" x2="22" y2="7"></line>
+                </svg>
+            </div>
+            <h2 style="margin-bottom:20px; font-weight:800; color:var(--text-primary); font-size:18px;">EDTECH STUDIO</h2>
+            <div style="margin-bottom:15px; text-align:left;">
+                <label style="display:block; font-size:12px; margin-bottom:5px; color:var(--text-secondary);">Usuario</label>
+                <input type="text" id="login-user" class="input" style="width:100%;" required>
+            </div>
+            <div style="margin-bottom:20px; text-align:left;">
+                <label style="display:block; font-size:12px; margin-bottom:5px; color:var(--text-secondary);">Contraseña</label>
+                <input type="password" id="login-pass" class="input" style="width:100%;" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%;">Ingresar</button>
+        </form>
+    </div>
+
+    <!-- ===================== APP WRAPPER ===================== -->
+    <div id="app-wrapper" style="display:none;">
+    <!-- ===================== HEADER ===================== -->
+    <header id="app-header">
+        <div class="header-left">
+            <div class="logo-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+                    <line x1="7" y1="2" x2="7" y2="22"></line>
+                    <line x1="17" y1="2" x2="17" y2="22"></line>
+                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                    <line x1="2" y1="7" x2="7" y2="7"></line>
+                    <line x1="2" y1="17" x2="7" y2="17"></line>
+                    <line x1="17" y1="17" x2="22" y2="17"></line>
+                    <line x1="17" y1="7" x2="22" y2="7"></line>
+                </svg>
+            </div>
+            <div class="header-title">
+                <h1>ESTUDIO DE FILMACIÓN EDTECH</h1>
+                <span id="semester-badge" class="semester-badge">Sin semestre activo</span>
+            </div>
+        </div>
+        <nav class="header-nav">
+            <button class="nav-btn active" data-view="calendar" id="nav-calendar">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                Calendario
+            </button>
+            <button class="nav-btn" data-view="goals" id="nav-goals">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                Metas del Semestre
+            </button>
+            <button class="nav-btn" data-view="pending-teachers" id="nav-pending-teachers">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                Agenda Docentes
+            </button>
+            <button class="nav-btn admin-only" data-view="admin" id="nav-admin">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/><path d="M12 14v7"/><path d="M9 18l3-3 3 3"/></svg>
+                Administrar
+            </button>
+        </nav>
+        <div class="header-actions">
+            <div style="display:flex; align-items:center; gap:12px; border-right:1px solid var(--border-light); padding-right:12px; margin-right:4px;">
+                <div style="width:28px; height:28px; border-radius:50%; background:var(--accent-bg); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+                <span id="current-user-name" style="font-size:13px; font-weight:500; color:var(--text-primary);">Usuario</span>
+                <span id="user-role-badge" class="role-badge"></span>
+                <button class="btn-icon" id="btn-logout" title="Cerrar sesión" style="width:24px; height:24px; color:var(--text-muted);">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                </button>
+            </div>
+            <button class="btn-icon admin-only" id="btn-settings" title="Configuración">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            </button>
+            <!-- Meeting Requests Notification Bell (Admin only) -->
+            <button class="btn-icon admin-only" id="btn-meeting-requests" title="Solicitudes de reunión pendientes" style="position:relative;" onclick="Modals.openMeetingRequestsList()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                <span id="meeting-requests-badge" style="display:none;position:absolute;top:-2px;right:-2px;min-width:16px;height:16px;border-radius:8px;background:#f87171;color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 3px;animation:pulse-badge 1.5s infinite;"></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- ===================== MAIN CONTENT ===================== -->
+    <main id="app-main">
+        <!-- ===== CALENDAR VIEW ===== -->
+        <section id="view-calendar" class="view active">
+            <!-- Dashboard Cards -->
+            <div id="dashboard-cards" class="dashboard-cards">
+                <div class="dash-card dash-next" id="dash-next">
+                    <div class="dash-card-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    </div>
+                    <div class="dash-card-content">
+                        <span class="dash-card-label">Próxima Grabación</span>
+                        <span class="dash-card-value" id="dash-next-value">—</span>
+                        <span class="dash-card-sub" id="dash-next-sub"></span>
+                    </div>
+                </div>
+                <div class="dash-card dash-done" id="dash-done">
+                    <div class="dash-card-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    </div>
+                    <div class="dash-card-content">
+                        <span class="dash-card-label">Materias Grabadas</span>
+                        <span class="dash-card-value" id="dash-done-value">0</span>
+                    </div>
+                </div>
+                <div class="dash-card dash-pending" id="dash-pending">
+                    <div class="dash-card-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    </div>
+                    <div class="dash-card-content">
+                        <span class="dash-card-label">Materias Faltantes</span>
+                        <span class="dash-card-value" id="dash-pending-value">0</span>
+                    </div>
+                </div>
+                <div class="dash-card dash-progress" id="dash-inprogress">
+                    <div class="dash-card-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                    </div>
+                    <div class="dash-card-content">
+                        <span class="dash-card-label">En Progreso</span>
+                        <span class="dash-card-value" id="dash-inprogress-value">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="progress-section" id="progress-section">
+                <div class="progress-header">
+                    <span>Progreso General del Semestre</span>
+                    <span id="progress-percent">0%</span>
+                </div>
+                <div class="progress-bar-track">
+                    <div class="progress-bar-fill" id="progress-fill" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Calendar Controls -->
+            <div class="calendar-controls">
+                <div class="calendar-nav">
+                    <button class="btn-icon" id="btn-prev-month" title="Mes anterior">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                    </button>
+                    <h2 id="calendar-month-title" class="calendar-title">Mayo 2026</h2>
+                    <button class="btn-icon" id="btn-next-month" title="Mes siguiente">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                    </button>
+                    <button class="btn-sm btn-ghost" id="btn-today">Hoy</button>
+                </div>
+                <div class="calendar-actions">
+                    <button class="btn btn-primary" id="btn-new-reservation" style="background:var(--purple); border-color:var(--purple); color:#1a1a2e; font-weight:700;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        Reservar Fecha
+                    </button>
+                    <button class="btn btn-primary editor-only cal-admin-action" id="btn-new-assignment">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Nueva Filmación
+                    </button>
+                    <button class="btn btn-outline editor-only cal-admin-action" id="btn-close-week">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        Cerrar Semana
+                    </button>
+                </div>
+            </div>
+
+            <!-- Calendar Grid -->
+            <div class="calendar-grid" id="calendar-grid">
+                <div class="cal-header">Lun</div>
+                <div class="cal-header">Mar</div>
+                <div class="cal-header">Mié</div>
+                <div class="cal-header">Jue</div>
+                <div class="cal-header">Vie</div>
+                <div class="cal-header cal-weekend">Sáb</div>
+                <div class="cal-header cal-weekend">Dom</div>
+                <!-- Days will be rendered dynamically -->
+            </div>
+        </section>
+
+        <!-- ===== GOALS VIEW ===== -->
+        <section id="view-goals" class="view">
+            <div class="goals-header">
+                <div>
+                    <h2>Metas del Semestre</h2>
+                    <p class="goals-subtitle" id="goals-subtitle">Gestiona las materias a grabar este semestre</p>
+                </div>
+                <div class="goals-actions">
+                    <button class="btn btn-outline" id="btn-manage-semester">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        Gestionar Semestres
+                    </button>
+                    <button class="btn btn-primary" id="btn-add-subject">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Agregar Materia
+                    </button>
+                    <button class="btn btn-outline" id="btn-bulk-import">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        Importar Lista
+                    </button>
+                    <button class="btn btn-outline" id="btn-delete-all-subjects" style="border-color: var(--red); color: var(--red);">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        Eliminar Todas
+                    </button>
+                </div>
+            </div>
+
+            <!-- Goals Stats -->
+            <div class="goals-stats" id="goals-stats">
+                <div class="goals-stat">
+                    <span class="goals-stat-value" id="goals-total">0</span>
+                    <span class="goals-stat-label">Total</span>
+                </div>
+                <div class="goals-stat stat-done">
+                    <span class="goals-stat-value" id="goals-completed">0</span>
+                    <span class="goals-stat-label">Completadas</span>
+                </div>
+                <div class="goals-stat stat-progress">
+                    <span class="goals-stat-value" id="goals-inprogress">0</span>
+                    <span class="goals-stat-label">En progreso</span>
+                </div>
+                <div class="goals-stat stat-pending">
+                    <span class="goals-stat-value" id="goals-pending-stat">0</span>
+                    <span class="goals-stat-label">Pendientes</span>
+                </div>
+            </div>
+
+            <!-- Subjects List -->
+            <div class="subjects-list" id="subjects-list">
+                <div class="empty-state" id="subjects-empty">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    <p>No hay materias registradas</p>
+                    <span>Agrega materias manualmente o importa una lista</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== PENDING TEACHERS VIEW ===== -->
+        <section id="view-pending-teachers" class="view">
+            <div class="pending-header">
+                <div>
+                    <h2>Agenda de Docentes</h2>
+                    <p class="pending-subtitle">Registro permanente de docentes para filmaciones del semestre</p>
+                </div>
+                <div class="pending-actions">
+                    <button class="btn btn-primary" id="btn-add-pending-teacher">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Agregar Docente
+                    </button>
+                </div>
+            </div>
+
+            <!-- Status Stats -->
+            <div class="pending-stats" id="pending-stats" style="grid-template-columns: repeat(5, 1fr);">
+                <div class="pending-stat" style="cursor:pointer;" onclick="PendingTeachers.setFilter('all')">
+                    <span class="pending-stat-value" id="pt-total" style="color:var(--text-primary);">0</span>
+                    <span class="pending-stat-label">Total</span>
+                </div>
+                <div class="pending-stat" style="cursor:pointer;" onclick="PendingTeachers.setFilter('pending')">
+                    <span class="pending-stat-value" id="pt-pending" style="color:var(--amber);">0</span>
+                    <span class="pending-stat-label">Pendientes</span>
+                </div>
+                <div class="pending-stat" style="cursor:pointer;" onclick="PendingTeachers.setFilter('contacted')">
+                    <span class="pending-stat-value" id="pt-contacted" style="color:var(--cyan);">0</span>
+                    <span class="pending-stat-label">Contactados</span>
+                </div>
+                <div class="pending-stat" style="cursor:pointer;" onclick="PendingTeachers.setFilter('scheduled')">
+                    <span class="pending-stat-value" id="pt-scheduled" style="color:var(--green);">0</span>
+                    <span class="pending-stat-label">Agendados</span>
+                </div>
+                <div class="pending-stat" style="cursor:pointer;" onclick="PendingTeachers.setFilter('unavailable')">
+                    <span class="pending-stat-value" id="pt-unavailable" style="color:var(--red);">0</span>
+                    <span class="pending-stat-label">No Disponible</span>
+                </div>
+            </div>
+
+            <!-- Filter Tabs -->
+            <div class="admin-tabs" id="pt-filter-tabs" style="margin-bottom:16px;">
+                <button class="admin-tab-btn active" data-filter="all">Todos</button>
+                <button class="admin-tab-btn" data-filter="pending">Pendientes</button>
+                <button class="admin-tab-btn" data-filter="contacted">Contactados</button>
+                <button class="admin-tab-btn" data-filter="scheduled">Agendados</button>
+                <button class="admin-tab-btn" data-filter="unavailable">No Disponible</button>
+            </div>
+
+            <!-- Search -->
+            <div style="margin-bottom:12px;">
+                <input type="text" id="pt-search" class="input" placeholder="Buscar por nombre o materia..." style="max-width:400px;" autocomplete="off">
+            </div>
+
+            <!-- Quick Add Bar -->
+            <div class="quick-add-bar" id="quick-add-bar">
+                <div class="quick-add-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Agregar rápido
+                </div>
+                <div class="quick-add-fields">
+                    <input type="text" id="qa-name" class="input" placeholder="Nombre del docente" style="flex: 2;">
+                    <select id="qa-subject" class="input select" style="flex: 3;">
+                        <option value="">-- Seleccionar Materia --</option>
+                    </select>
+                    <span id="qa-subject-type-tag" style="display:inline-flex;align-items:center;padding:4px 10px;border-radius:4px;font-size:12px;font-weight:600;background:rgba(96,165,250,0.15);color:#60a5fa;white-space:nowrap;flex-shrink:0;">Teórica</span>
+                    <input type="hidden" id="qa-subject-type" value="Teórica">
+                    <input type="tel" id="qa-phone" class="input" placeholder="Celular" style="flex: 1;">
+                    <select id="qa-sede" class="input select">
+                        <option value="La Paz">La Paz</option>
+                        <option value="El Alto">El Alto</option>
+                        <option value="Cochabamba">Cochabamba</option>
+                        <option value="Santa Cruz">Santa Cruz</option>
+                        <option value="Sucre">Sucre</option>
+                        <option value="Oruro">Oruro</option>
+                        <option value="Potosí">Potosí</option>
+                        <option value="Tarija">Tarija</option>
+                        <option value="Trinidad">Trinidad</option>
+                        <option value="Cobija">Cobija</option>
+                    </select>
+
+                    <button class="btn btn-primary" id="btn-quick-add" title="Agregar">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Pending Teachers List -->
+            <div class="pending-list" id="pending-list">
+                <div class="empty-state" id="pending-empty">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    <p>No hay docentes pendientes</p>
+                    <span>Agrega docentes usando el formulario rápido o el botón superior</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== ADMIN PANEL VIEW ===== -->
+        <section id="view-admin" class="view" style="padding:24px;">
+            <div class="pending-header" style="margin-bottom:24px;">
+                <div>
+                    <h2>Panel de Administración</h2>
+                    <p class="pending-subtitle">Gestiona usuarios, materias globales y revisa el log de actividad</p>
+                </div>
+            </div>
+
+            <!-- Admin Tabs -->
+            <div class="admin-tabs">
+                <button class="admin-tab-btn active" id="admin-tab-users">Usuarios</button>
+                <button class="admin-tab-btn" id="admin-tab-subjects">Base de Materias</button>
+                <button class="admin-tab-btn" id="admin-tab-log">Log de Actividad</button>
+            </div>
+
+            <!-- Tab: Users -->
+            <div class="admin-tab-panel active" id="admin-panel-users">
+                <div class="admin-section">
+                    <h4 class="admin-section-title">Agregar Nuevo Usuario</h4>
+                    <div class="form-grid" style="grid-template-columns: 1fr 1fr 1fr 1fr auto; gap:12px; align-items:end;">
+                        <div class="form-row">
+                            <label>Nombre completo</label>
+                            <input type="text" id="new-user-name" class="input" placeholder="Ej: José Sarsuri">
+                        </div>
+                        <div class="form-row">
+                            <label>Usuario</label>
+                            <input type="text" id="new-user-username" class="input" placeholder="Se genera automático">
+                        </div>
+                        <div class="form-row">
+                            <label>Contraseña</label>
+                            <input type="password" id="new-user-password" class="input" placeholder="Contraseña">
+                        </div>
+                        <div class="form-row">
+                            <label>Rol</label>
+                            <select id="new-user-role" class="input select">
+                                <option value="academica">Académica</option>
+                                <option value="post_productor">Post-Producción</option>
+                                <option value="admin">Administrador</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" id="btn-save-new-user" style="height:38px;">Crear</button>
+                    </div>
+                    
+                    <!-- WhatsApp Copy Container -->
+                    <div id="new-user-success-box" style="display:none; margin-top:16px; padding:12px 16px; background:rgba(52,211,153,0.1); border:1px solid rgba(52,211,153,0.3); border-radius:8px; align-items:center; justify-content:space-between;">
+                        <div>
+                            <div style="font-size:13px; font-weight:700; color:var(--green); margin-bottom:4px;">¡Usuario Creado Exitosamente!</div>
+                            <div style="font-size:12px; color:var(--text-secondary);" id="new-user-success-text"></div>
+                        </div>
+                        <button class="btn btn-success" id="btn-copy-whatsapp" style="gap:8px;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            Copiar para WhatsApp
+                        </button>
+                    </div>
+                </div>
+                <div class="admin-section" style="margin-top:24px;">
+                    <h4 class="admin-section-title">Usuarios del Sistema</h4>
+                    <div id="admin-users-list"></div>
+                </div>
+            </div>
+
+            <!-- Tab: Global Subjects -->
+            <div class="admin-tab-panel" id="admin-panel-subjects" style="display:none;">
+                <div class="admin-section">
+                    <h4 class="admin-section-title">Agregar Materia</h4>
+                    <div class="form-grid" style="grid-template-columns: 1fr 2fr 1fr auto; gap:12px; align-items:end;">
+                        <div class="form-row">
+                            <label>Código</label>
+                            <input type="text" id="gs-code" class="input" placeholder="Ej: AHT-511">
+                        </div>
+                        <div class="form-row">
+                            <label>Nombre de la Materia</label>
+                            <input type="text" id="gs-name" class="input" placeholder="Ej: Historia del Arte">
+                        </div>
+                        <div class="form-row">
+                            <label>Carrera (opc.)</label>
+                            <input type="text" id="gs-career" class="input" placeholder="Ej: Arquitectura">
+                        </div>
+                        <button class="btn btn-primary" id="btn-add-global-subject" style="height:38px;">Agregar</button>
+                    </div>
+                </div>
+                <div class="admin-section" style="margin-top:20px;">
+                    <h4 class="admin-section-title">Importar en Masa</h4>
+                    <p style="font-size:12px; color:var(--text-muted); margin-bottom:8px;">Pega un listado con formato: <code>Materia,Carrera</code> o <code>Código Materia,Carrera</code> (una por línea). La carrera es opcional.</p>
+                    <textarea id="gs-bulk-import" class="input textarea" rows="5" placeholder="AHT-511 Historia del Arte,Arquitectura
+DER-410 Derecho Constitucional
+PSI-220 Psicología General,Psicología"></textarea>
+                    <button class="btn btn-outline" id="btn-import-global-subjects" style="margin-top:10px;">Importar Lista</button>
+                </div>
+                <div class="admin-section" style="margin-top:24px;">
+                    <h4 class="admin-section-title">Materias Globales (<span id="gs-count">0</span>)</h4>
+                    <div class="gs-header-row">
+                        <span>Código</span><span>Materia</span><span>Carrera</span><span></span>
+                    </div>
+                    <div id="global-subjects-list"></div>
+                </div>
+            </div>
+
+            <!-- Tab: Activity Log -->
+            <div class="admin-tab-panel" id="admin-panel-log" style="display:none;">
+                <div class="admin-section">
+                    <h4 class="admin-section-title">Actividad Reciente</h4>
+                    <div id="activity-log-list"></div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ===================== MODALS ===================== -->
+
+    <!-- Overlay -->
+    <div class="modal-overlay" id="modal-overlay"></div>
+
+    <!-- Custom Context Menu -->
+    <div id="ctx-menu" class="ctx-menu" style="display:none;">
+        <div id="ctx-menu-items"></div>
+    </div>
+
+    <!-- Custom Confirm Dialog -->
+    <div id="confirm-overlay" class="confirm-overlay" style="display:none;">
+        <div class="confirm-dialog">
+            <div class="confirm-icon" id="confirm-icon"></div>
+            <div class="confirm-title" id="confirm-title">¿Confirmar acción?</div>
+            <div class="confirm-message" id="confirm-message"></div>
+            <div class="confirm-actions">
+                <button class="btn btn-ghost" id="confirm-cancel">Cancelar</button>
+                <button class="btn btn-danger" id="confirm-ok">Eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: New Semester -->
+    <div class="modal" id="modal-semester">
+        <div class="modal-header">
+            <h3>Gestionar Semestres</h3>
+            <button class="modal-close" data-close-modal>&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-row">
+                <label>Nuevo Semestre</label>
+                <div class="input-group">
+                    <input type="text" id="input-semester-name" placeholder="Ej: 2026-1" class="input">
+                    <button class="btn btn-primary" id="btn-create-semester">Crear</button>
+                </div>
+            </div>
+            <div class="divider"></div>
+            <div class="semester-list" id="semester-list">
+                <!-- Rendered dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Add Subject -->
+    <div class="modal" id="modal-subject">
+        <div class="modal-header">
+            <h3>Agregar Materia</h3>
+            <button class="modal-close" data-close-modal>&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-row">
+                <label for="input-subject-name">Materia</label>
+                <input type="text" id="input-subject-name" placeholder="Ej: AHT-511 Administración del Talento Humano" class="input">
+            </div>
+            <div class="form-row">
+                <label for="input-subject-type-select">Tipo</label>
+                <select id="input-subject-type-select" class="input select">
+                    <option value="Teórica">Teórica</option>
+                    <option value="Numérica">Numérica</option>
+                    <option value="Proyecto Integrador">Proyecto Integrador</option>
+                </select>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" data-close-modal>Cancelar</button>
+            <button class="btn btn-primary" id="btn-save-subject">Guardar</button>
+        </div>
+    </div>
+
+    <!-- Modal: Bulk Import -->
+    <div class="modal modal-lg" id="modal-bulk-import">
+        <div class="modal-header">
+            <h3>Importar Lista de Materias</h3>
+            <button class="modal-close" data-close-modal>&times;</button>
+        </div>
+        <div class="modal-body">
+            <!-- Step 1: Input -->
+            <div id="import-step-input">
+                <p class="modal-hint">Sube un archivo <b>.csv</b> o pega los datos desde Excel. Las columnas deben ser: <code>CÓDIGO | Nombre de la Materia | Tipo</code></p>
+                <div class="form-row" style="margin-bottom: 16px;">
+                    <label for="input-bulk-file" style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:12px; background:var(--card-bg); border:1px dashed var(--border-color); border-radius:8px; justify-content:center;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        <span>Seleccionar archivo CSV</span>
+                        <input type="file" id="input-bulk-file" accept=".csv" style="display:none;">
+                    </label>
+                    <div id="bulk-file-name" style="text-align:center; font-size:12px; color:var(--text-muted); margin-top:4px;"></div>
+                </div>
+                
+                <div class="form-row">
+                    <label for="input-bulk-text">O pega tu lista aquí (separada por tabulaciones o comas)</label>
+                    <textarea id="input-bulk-text" class="input textarea" rows="8" placeholder="ATH-611&#9;Administración del Talento Humano&#9;Teórica..."></textarea>
+                </div>
+            </div>
+
+            <!-- Step 2: Preview -->
+            <div id="import-step-preview" style="display:none;">
+                <div class="import-preview-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding:10px 12px; background:var(--bg-tertiary); border-radius:6px;">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <span style="font-size:13px; font-weight:600; color:var(--text-primary);" id="preview-count-label">0 materias detectadas</span>
+                        <span style="font-size:11px; color:var(--text-muted);" id="preview-dup-label"></span>
+                    </div>
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary);cursor:pointer;">
+                            <input type="checkbox" id="import-replace-mode" checked style="accent-color:var(--accent);">
+                            Reemplazar existentes
+                        </label>
+                        <button class="btn-sm btn-ghost" id="btn-back-to-input">← Volver</button>
+                    </div>
+                </div>
+                <div id="import-preview-table" style="max-height:400px; overflow-y:auto; border:1px solid var(--border-light); border-radius:6px;">
+                    <!-- Table rendered by JS -->
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" data-close-modal>Cancelar</button>
+            <button class="btn btn-primary" id="btn-preview-import" style="">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                Previsualizar
+            </button>
+            <button class="btn btn-primary" id="btn-do-import" style="display:none;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Importar
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal: New Filming Assignment -->
+    <div class="modal modal-lg" id="modal-assignment">
+        <div class="modal-header">
+            <h3 id="modal-assignment-title">Nueva Filmación</h3>
+            <button class="modal-close" data-close-modal>&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-row" id="row-select-pending" style="display:none; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border-light);">
+                <label for="input-select-pending" style="color:var(--accent);">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle; margin-right:4px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    Cargar desde Agenda de Pendientes
+                </label>
+                <select id="input-select-pending" class="input select">
+                    <option value="">-- Ingreso manual --</option>
+                </select>
+            </div>
+            <div class="form-grid">
+                <div class="form-row">
+                    <label for="input-teacher-name">Nombre del Docente</label>
+                    <input type="text" id="input-teacher-name" placeholder="Ej: Lic. García" class="input">
+                </div>
+                <div class="form-row">
+                    <label for="input-teacher-phone">Teléfono de Contacto</label>
+                    <input type="tel" id="input-teacher-phone" placeholder="Ej: +591 71234567" class="input">
+                </div>
+            </div>
+            <div class="form-row">
+                <label for="input-assignment-subject">Materia</label>
+                <select id="input-assignment-subject" class="input select">
+                    <option value="">Seleccionar materia...</option>
+                </select>
+            </div>
+            <div class="divider"></div>
+            <h4 class="form-section-title">Primera Sesión de Grabación</h4>
+            <div class="form-grid form-grid-3">
+                <div class="form-row">
+                    <label for="input-session-date">Fecha</label>
+                    <input type="date" id="input-session-date" class="input">
+                </div>
+                <div class="form-row">
+                    <label for="input-session-start">Hora Inicio</label>
+                    <input type="time" id="input-session-start" class="input" value="08:00">
+                </div>
+                <div class="form-row">
+                    <label for="input-session-end">Hora Fin</label>
+                    <input type="time" id="input-session-end" class="input" value="10:00">
+                </div>
+            </div>
+            <div class="form-grid">
+                <div class="form-row">
+                    <label for="input-session-hito">Hito Alcanzado</label>
+                    <select id="input-session-hito" class="input select">
+                        <option value="">Sin definir aún</option>
+                        <option value="pagina_inicio">Página de Inicio</option>
+                        <option value="hito_2">Hito II</option>
+                        <option value="hito_3">Hito III</option>
+                        <option value="hito_4">Hito IV</option>
+                        <option value="hito_5">Hito V</option>
+                        <option value="semanas">Semanas</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label for="input-script-status">Estado del Guión</label>
+                    <select id="input-script-status" class="input select">
+                        <option value="not_uploaded">Sin Guión</option>
+                        <option value="guion_pendiente">GUION PENDIENTE</option>
+                        <option value="guion_revisado">GUION REVISADO</option>
+                        <option value="uploaded_hito_v">Cargado (Hito V)</option>
+                        <option value="pending_review">Pendiente de Revisión</option>
+                        <option value="in_review">En Revisión</option>
+                        <option value="needs_corrections">Requiere Correcciones</option>
+                        <option value="approved">Revisado ✓</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Segunda sesión opcional -->
+            <div style="margin-top:4px;">
+                <button type="button" id="btn-toggle-session-2" onclick="Modals.toggleSecondSession()" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:5px 12px;border-radius:6px;background:var(--bg-elevated);border:1px solid var(--border);color:var(--text-secondary);cursor:pointer;transition:all 0.15s;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Agregar 2ª sesión
+                </button>
+            </div>
+            <div id="session-2-block" style="display:none; margin-top:10px; padding:12px; background:var(--bg-elevated); border:1px solid var(--border-light); border-radius:8px;">
+                <div style="font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
+                    <span>2ª Sesión de Grabación</span>
+                    <button type="button" onclick="Modals.toggleSecondSession()" style="font-size:11px;color:var(--text-muted);background:none;border:none;cursor:pointer;">✕ Quitar</button>
+                </div>
+                <div class="form-grid form-grid-3">
+                    <div class="form-row">
+                        <label for="input-session2-date">Fecha</label>
+                        <input type="date" id="input-session2-date" class="input">
+                    </div>
+                    <div class="form-row">
+                        <label for="input-session2-start">Hora Inicio</label>
+                        <input type="time" id="input-session2-start" class="input" value="08:00">
+                    </div>
+                    <div class="form-row">
+                        <label for="input-session2-end">Hora Fin</label>
+                        <input type="time" id="input-session2-end" class="input" value="10:00">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label for="input-session2-hito">Hito Alcanzado (2ª sesión)</label>
+                    <select id="input-session2-hito" class="input select">
+                        <option value="">Sin definir aún</option>
+                        <option value="pagina_inicio">Página de Inicio</option>
+                        <option value="hito_2">Hito II</option>
+                        <option value="hito_3">Hito III</option>
+                        <option value="hito_4">Hito IV</option>
+                        <option value="hito_5">Hito V</option>
+                        <option value="semanas">Semanas</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:12px;">
+                <div class="form-row">
+                    <label for="input-assignment-sede">Sede (Ciudad)</label>
+                    <select id="input-assignment-sede" class="input select" onchange="Modals.checkFlightTicketVisibility()">
+                        <option value="La Paz">La Paz</option>
+                        <option value="El Alto">El Alto</option>
+                        <option value="Cochabamba">Cochabamba</option>
+                        <option value="Santa Cruz">Santa Cruz</option>
+                        <option value="Sucre">Sucre</option>
+                        <option value="Oruro">Oruro</option>
+                        <option value="Potosí">Potosí</option>
+                        <option value="Tarija">Tarija</option>
+                        <option value="Trinidad">Trinidad</option>
+                        <option value="Cobija">Cobija</option>
+                    </select>
+                </div>
+                <div class="form-row" id="flight-ticket-container" style="display:none;">
+                    <label for="input-flight-ticket">Pasaje de Vuelo (PDF recomendado)</label>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <input type="file" id="input-flight-ticket" accept=".pdf" class="input" style="flex:1;">
+                        <input type="hidden" id="input-flight-ticket-path">
+                        <a id="btn-view-flight-ticket" href="#" target="_blank" class="btn btn-outline" style="display:none;padding:0 12px;white-space:nowrap;" title="Ver PDF subido">📄 Ver</a>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row">
+                <label for="input-drive-link">Link de Drive (Guión)</label>
+                <input type="url" id="input-drive-link" placeholder="https://drive.google.com/..." class="input">
+            </div>
+            <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:12px;">
+                <div class="form-row">
+                    <label for="input-assigned-staff">Post-Productor Principal</label>
+                    <select id="input-assigned-staff" class="input select">
+                        <option value="">-- Sin asignar --</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label for="input-assigned-staff-2">Asistente / 2° persona (opc.)</label>
+                    <select id="input-assigned-staff-2" class="input select">
+                        <option value="">-- Ninguno --</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" data-close-modal>Cancelar</button>
+            <button class="btn btn-primary" id="btn-save-assignment">Guardar Filmación</button>
+        </div>
+    </div>
+
+    <!-- Modal: Add Session (to existing assignment) -->
+    <div class="modal" id="modal-add-session">
+        <div class="modal-header">
+            <h3>Agregar Sesión de Grabación</h3>
+            <button class="modal-close" data-close-modal>&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="session-context" id="session-context">
+                <!-- Shows teacher name + subject -->
+            </div>
+            <div class="form-grid form-grid-3">
+                <div class="form-row">
+                    <label for="input-new-session-date">Fecha</label>
+                    <input type="date" id="input-new-session-date" class="input">
+                </div>
+                <div class="form-row">
+                    <label for="input-new-session-start">Hora Inicio</label>
+                    <input type="time" id="input-new-session-start" class="input" value="08:00">
+                </div>
+                <div class="form-row">
+                    <label for="input-new-session-end">Hora Fin</label>
+                    <input type="time" id="input-new-session-end" class="input" value="10:00">
+                </div>
+            </div>
+            <div class="form-row">
+                <label for="input-new-session-hito">Hito Alcanzado</label>
+                <select id="input-new-session-hito" class="input select">
+                    <option value="">Sin definir aún</option>
+                    <option value="pagina_inicio">Página de Inicio</option>
+                    <option value="hito_2">Hito II</option>
+                    <option value="hito_3">Hito III</option>
+                    <option value="hito_4">Hito IV</option>
+                    <option value="hito_5">Hito V</option>
+                    <option value="semanas">Semanas</option>
+                </select>
+            </div>
+            <div class="form-grid form-grid-3" style="grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                <div class="form-row">
+                    <label for="input-new-session-staff-1">Post-Productor Principal</label>
+                    <select id="input-new-session-staff-1" class="input select">
+                        <option value="">Seleccionar...</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label for="input-new-session-staff-2">Asistente (Opcional)</label>
+                    <select id="input-new-session-staff-2" class="input select">
+                        <option value="">Ninguno</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <label for="input-new-session-notes">Notas</label>
+                <textarea id="input-new-session-notes" class="input textarea" rows="3" placeholder="Observaciones de la sesión..."></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" data-close-modal>Cancelar</button>
+            <button class="btn btn-primary" id="btn-save-session">Guardar Sesión</button>
+        </div>
+    </div>
+
+    <!-- Modal: Close Week -->
+    <div class="modal" id="modal-close-week">
+        <div class="modal-header">
+            <h3>Cerrar Semana</h3>
+            <button class="modal-close" data-close-modal>&times;</button>
+        </div>
+        <div class="modal-body">
+            <p class="modal-hint">Selecciona el lunes de la semana que deseas cerrar. No se podrán agendar filmaciones en esa semana.</p>
+            <div class="form-row">
+                <label for="input-close-week-date">Lunes de la Semana</label>
+                <input type="date" id="input-close-week-date" class="input">
+            </div>
+            <div class="form-row">
+                <label for="input-close-week-reason">Motivo</label>
+                <input type="text" id="input-close-week-reason" class="input" value="Estudio cerrado" placeholder="Ej: Mantenimiento del estudio">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" data-close-modal>Cancelar</button>
+            <button class="btn btn-danger" id="btn-do-close-week">Cerrar Semana</button>
+        </div>
+    </div>
+
+    <!-- Modal: Assignment Detail -->
+    <div class="modal modal-lg" id="modal-detail">
+        <div class="modal-header">
+            <h3 id="detail-title">Detalle de Filmación</h3>
+            <button class="modal-close" data-close-modal>&times;</button>
+        </div>
+        <div class="modal-body" id="detail-body">
+            <!-- Rendered dynamically -->
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" data-close-modal>Cerrar</button>
+            <button class="btn btn-outline" id="btn-detail-add-session">+ Agregar Sesión</button>
+            <button class="btn btn-success" id="btn-detail-complete" style="display:none">Marcar como Completada</button>
+        </div>
+    </div>
+
+    <!-- Modal: Edit Session -->
+    <div class="modal" id="modal-edit-session">
+        <div class="modal-header">
+            <h3>Editar Sesión</h3>
+            <button class="modal-close" data-close-modal>&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-grid form-grid-3">
+                <div class="form-row">
+                    <label for="input-edit-session-date">Fecha</label>
+                    <input type="date" id="input-edit-session-date" class="input">
+                </div>
+                <div class="form-row">
+                    <label for="input-edit-session-start">Hora Inicio</label>
+                    <input type="time" id="input-edit-session-start" class="input">
+                </div>
+                <div class="form-row">
+                    <label for="input-edit-session-end">Hora Fin</label>
+                    <input type="time" id="input-edit-session-end" class="input">
+                </div>
+            </div>
+            <div class="form-row">
+                <label for="input-edit-session-hito">Hito Alcanzado</label>
+                <select id="input-edit-session-hito" class="input select">
+                    <option value="">Sin definir aún</option>
+                    <option value="pagina_inicio">Página de Inicio</option>
+                    <option value="hito_2">Hito II</option>
+                    <option value="hito_3">Hito III</option>
+                    <option value="hito_4">Hito IV</option>
+                    <option value="hito_5">Hito V</option>
+                    <option value="semanas">Semanas</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label for="input-edit-session-notes">Notas</label>
+                <textarea id="input-edit-session-notes" class="input textarea" rows="2" placeholder="Observaciones..."></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" data-close-modal>Cancelar</button>
+            <button class="btn btn-primary" id="btn-save-edit-session">Guardar Cambios</button>
+        </div>
+    </div>
+
+    <!-- Modal: Add/Edit Pending Teacher -->
+    <div class="modal" id="modal-pending-teacher">
+        <div class="modal-header">
+            <h3 id="modal-pt-title">Agregar Docente Pendiente</h3>
+            <button class="modal-close" data-close-modal>&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-row">
+                <label for="input-pt-name">Nombre del Docente</label>
+                <input type="text" id="input-pt-name" placeholder="Ej: Lic. Rodríguez" class="input">
+            </div>
+            <div class="form-row">
+                <label for="input-pt-subject">Materia</label>
+                <select id="input-pt-subject" class="input select">
+                    <option value="">-- Seleccionar Materia --</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label>Tipo de Materia</label>
+                <span id="modal-subject-type-tag" style="display:inline-flex;align-items:center;padding:6px 12px;border-radius:4px;font-size:12px;font-weight:600;background:rgba(96,165,250,0.15);color:#60a5fa;">Teórica</span>
+                <input type="hidden" id="input-pt-subject-type" value="Teórica">
+            </div>
+            <div class="form-grid">
+                <div class="form-row">
+                    <label for="input-pt-phone">Celular</label>
+                    <input type="tel" id="input-pt-phone" placeholder="Ej: +591 71234567" class="input">
+                </div>
+                <div class="form-row">
+                    <label for="input-pt-sede">Sede</label>
+                    <select id="input-pt-sede" class="input select" onchange="PendingTeachers.checkFlightTicketVisibility()">
+                        <option value="La Paz">La Paz</option>
+                        <option value="El Alto">El Alto</option>
+                        <option value="Cochabamba">Cochabamba</option>
+                        <option value="Santa Cruz">Santa Cruz</option>
+                        <option value="Sucre">Sucre</option>
+                        <option value="Oruro">Oruro</option>
+                        <option value="Potosí">Potosí</option>
+                        <option value="Tarija">Tarija</option>
+                        <option value="Trinidad">Trinidad</option>
+                        <option value="Cobija">Cobija</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row" id="pt-flight-ticket-container" style="display:none;">
+                <label for="input-pt-flight-ticket">Pasaje de Vuelo (PDF recomendado)</label>
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <input type="file" id="input-pt-flight-ticket" accept=".pdf" class="input" style="flex:1;">
+                    <input type="hidden" id="input-pt-flight-ticket-path">
+                    <a id="btn-pt-view-flight-ticket" href="#" target="_blank" class="btn btn-outline" style="display:none;padding:0 12px;white-space:nowrap;" title="Ver PDF subido">📄 Ver</a>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <label for="input-pt-drive">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    Link de Drive — Guiones
+                </label>
+                <input type="url" id="input-pt-drive" placeholder="https://drive.google.com/..." class="input">
+            </div>
+
+            <div class="form-row">
+                <label for="input-pt-notes">Notas (opcional)</label>
+                <textarea id="input-pt-notes" class="input textarea" rows="2" placeholder="Observaciones..."></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" data-close-modal>Cancelar</button>
+            <button class="btn btn-primary" id="btn-save-pending-teacher">Guardar</button>
+        </div>
+    </div>
+
+    <!-- Modal: New Reservation -->
+    <div class="modal" id="modal-reservation">
+        <div class="modal-header">
+            <h3>Nueva Reserva</h3>
+            <button class="modal-close" data-close-modal>&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-grid">
+                <div class="form-row">
+                    <label for="input-res-date">Fecha Inicio</label>
+                    <input type="date" id="input-res-date" class="input" required>
+                </div>
+                <div class="form-row">
+                    <label for="input-res-end-date">Fecha Fin</label>
+                    <input type="date" id="input-res-end-date" class="input" required>
+                </div>
+            </div>
+            <div class="form-grid">
+                <div class="form-row">
+                    <label for="input-res-start">Hora Inicio</label>
+                    <input type="time" id="input-res-start" class="input" value="08:00" required>
+                </div>
+                <div class="form-row">
+                    <label for="input-res-end">Hora Fin</label>
+                    <input type="time" id="input-res-end" class="input" value="10:00" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <label for="input-res-reason">Motivo / Notas</label>
+                <input type="text" id="input-res-reason" class="input" placeholder="Ej: Reserva de estudio para fotos" required>
+            </div>
+
+            <!-- Displacement Toggle -->
+            <div class="form-row" id="displacement-row" style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-top:4px;">
+                <label style="display:flex;align-items:center;gap:12px;cursor:pointer;margin:0;">
+                    <span class="displacement-toggle-wrap">
+                        <input type="checkbox" id="input-res-displacement" style="display:none;">
+                        <span class="displacement-switch" id="displacement-switch-visual" onclick="Modals.toggleDisplacement()" style="display:inline-flex;align-items:center;width:44px;height:24px;border-radius:12px;background:var(--border);position:relative;cursor:pointer;transition:background 0.25s;flex-shrink:0;">
+                            <span style="position:absolute;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform 0.25s;box-shadow:0 1px 4px rgba(0,0,0,0.3);" id="displacement-knob"></span>
+                        </span>
+                    </span>
+                    <span style="display:flex;flex-direction:column;gap:2px;">
+                        <span style="font-weight:600;color:var(--text-primary);font-size:13px;">Desplazamiento</span>
+                        <span style="font-size:11px;color:var(--text-secondary);">El equipo sale del estudio — el estudio <strong id="displacement-status-text">queda ocupado</strong></span>
+                    </span>
+                </label>
+                <div id="displacement-info" style="display:none;margin-top:10px;padding:8px 12px;border-radius:6px;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);">
+                    <span style="color:#fbbf24;font-size:12px;font-weight:600;">📦 El estudio quedará LIBRE durante este horario</span>
+                    <div style="color:var(--text-secondary);font-size:11px;margin-top:3px;">Otros podrán usar las instalaciones o solicitar reuniones</div>
+                </div>
+            </div>
+
+            <div id="reservation-error" style="display:none;color:#f87171;font-size:13px;padding:8px 12px;border-radius:6px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);margin-top:8px;"></div>
+
+            <div class="form-row">
+                <label style="display:flex;align-items:center;justify-content:space-between;">
+                    <span>Staff</span>
+                    <button type="button" id="btn-add-attendee" onclick="Calendar.addAttendeeField()" style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:5px;background:var(--bg-elevated);border:1px solid var(--border);color:var(--text-secondary);cursor:pointer;transition:all 0.15s;">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Añadir
+                    </button>
+                </label>
+                <div id="attendees-list" style="display:flex;flex-direction:column;gap:6px;margin-top:6px;"></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" data-close-modal>Cancelar</button>
+            <button class="btn btn-primary" id="btn-save-reservation" style="background:var(--purple); border-color:var(--purple); color:#1a1a2e; font-weight:700;">Guardar Reserva</button>
+        </div>
+    </div>
+
+    <!-- Modal: Meeting Request Review (Admin) -->
+    <div class="modal" id="modal-meeting-request">
+        <div class="modal-header">
+            <h3>Solicitud de Reunión</h3>
+            <button class="modal-close" data-close-modal>&times;</button>
+        </div>
+        <div class="modal-body">
+            <div style="display:flex;flex-direction:column;gap:12px;">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    <div>
+                        <div style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;">SOLICITANTE</div>
+                        <div id="mr-requester-name" style="font-weight:600;font-size:15px;"></div>
+                    </div>
+                    <div>
+                        <div style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;">CONTACTO</div>
+                        <div id="mr-requester-contact" style="font-size:13px;"></div>
+                    </div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    <div>
+                        <div style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;">FECHA</div>
+                        <div id="mr-date" style="font-weight:600;"></div>
+                    </div>
+                    <div>
+                        <div style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;">HORARIO</div>
+                        <div id="mr-time" style="font-weight:600;"></div>
+                    </div>
+                </div>
+                <div>
+                    <div style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;">MOTIVO</div>
+                    <div id="mr-reason" style="font-size:13px;color:var(--text-primary);"></div>
+                </div>
+                <div class="form-row" style="margin-top:4px;">
+                    <label for="mr-admin-notes">Notas del administrador (opcional)</label>
+                    <input type="text" id="mr-admin-notes" class="input" placeholder="Motivo de aprobación o rechazo...">
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" data-close-modal>Cancelar</button>
+            <button class="btn" id="btn-reject-meeting" onclick="Modals.reviewMeetingRequest('rejected')" style="background:rgba(248,113,113,0.15);border:1px solid rgba(248,113,113,0.4);color:#f87171;font-weight:600;">Rechazar</button>
+            <button class="btn btn-primary" id="btn-approve-meeting" onclick="Modals.reviewMeetingRequest('approved')" style="background:#22c55e;border-color:#22c55e;color:#0a1a0f;font-weight:700;">✓ Aprobar</button>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- ===================== MOBILE BOTTOM NAV ===================== -->
+    <nav id="mobile-nav-bar">
+        <button class="mob-nav-btn active" data-view="calendar">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Calendario
+        </button>
+        <button class="mob-nav-btn" data-view="goals">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            Metas
+        </button>
+        <button class="mob-nav-btn" data-view="pending-teachers">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Agenda
+        </button>
+        <button class="mob-nav-btn admin-only" data-view="admin">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/><path d="M12 14v7"/><path d="M9 18l3-3 3 3"/></svg>
+            Admin
+        </button>
+    </nav>
+
+    </div> <!-- END APP WRAPPER -->
+
+    <script src="/js/app.js"></script>
+    <script src="/js/calendar.js"></script>
+    <script src="/js/dashboard.js"></script>
+    <script src="/js/modals.js"></script>
+    <script src="/js/pending-teachers.js"></script>
+    <script src="/js/admin-panel.js"></script>
+    <script>
+        // ── Sync mobile bottom nav (runs after all scripts load) ──
+        // App.init() is already called inside app.js — do NOT call it again here.
+        window.addEventListener('load', () => {
+            const mobBtns = document.querySelectorAll('#mobile-nav-bar .mob-nav-btn');
+            mobBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const view = btn.dataset.view;
+                    const headerBtn = document.querySelector(`.nav-btn[data-view="${view}"]`);
+                    if (headerBtn) headerBtn.click();
+                    mobBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                });
+            });
+            document.querySelectorAll('.nav-btn[data-view]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const view = btn.dataset.view;
+                    mobBtns.forEach(b => b.classList.toggle('active', b.dataset.view === view));
+                });
+            });
+        });
+    </script>
+</body>
+</html>

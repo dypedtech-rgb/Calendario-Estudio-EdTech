@@ -1,0 +1,35 @@
+{
+  "rewrites": [
+    { "source": "/api/public/availability", "destination": "/api/public/availability" },
+    { "source": "/api/public/meeting-request", "destination": "/api/public/meeting-request" },
+    { "source": "/api/sessions/availability", "destination": "/api/sessions/availability" },
+    { "source": "/api/notifications/read-all", "destination": "/api/notifications/read-all" },
+    { "source": "/api/subjects/bulk", "destination": "/api/subjects/bulk" },
+    { "source": "/api/subjects/bulk-delete", "destination": "/api/subjects/bulk-delete" },
+    { "source": "/api/global-subjects/bulk", "destination": "/api/global-subjects/bulk" },
+    { "source": "/api/semesters/:id/activate", "destination": "/api/semesters/[id]/activate" },
+    { "source": "/api/notifications/:id/read", "destination": "/api/notifications/[id]/read" },
+    { "source": "/api/semesters/:id", "destination": "/api/semesters/[id]" },
+    { "source": "/api/subjects/:id", "destination": "/api/subjects/[id]" },
+    { "source": "/api/assignments/:id", "destination": "/api/assignments/[id]" },
+    { "source": "/api/sessions/:id", "destination": "/api/sessions/[id]" },
+    { "source": "/api/reservations/:id", "destination": "/api/reservations/[id]" },
+    { "source": "/api/users/:id", "destination": "/api/users/[id]" },
+    { "source": "/api/closed-weeks/:id", "destination": "/api/closed-weeks/[id]" },
+    { "source": "/api/pending-teachers/:id", "destination": "/api/pending-teachers/[id]" },
+    { "source": "/api/global-subjects/:id", "destination": "/api/global-subjects/[id]" },
+    { "source": "/api/meeting-requests/:id", "destination": "/api/meeting-requests/[id]" },
+    { "source": "/api/availability/:date", "destination": "/api/availability/[date]" }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Content-Type", "value": "application/json" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET,POST,PUT,DELETE,OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "Content-Type, Authorization" }
+      ]
+    }
+  ]
+}

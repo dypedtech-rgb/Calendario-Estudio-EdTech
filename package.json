@@ -1,0 +1,13 @@
+{
+  "name": "edtech-studio",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "pg": "^8.11.5",
+    "bcryptjs": "^2.4.3"
+  }
+}
