@@ -322,6 +322,7 @@ input[type="time"]:hover { background-image: url("data:image/svg+xml,%3Csvg xmln
 }
 .cal-event.reservation.displacement .cal-event-code {
     background: rgba(244, 114, 182, 0.2);
+    color: var(--pink) !important;
     padding: 1px 4px;
     border-radius: 3px;
 }
